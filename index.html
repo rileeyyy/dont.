@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>dont drop the soap simulator</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: grey;
+        }
+        #startScreen, #gameScreen, #gameOverScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-color: blue;
+            color: black;
+            font-size: 30px;
+            text-align: center;
+        }
+        #gameScreen {
+            background-color: grey;
+        }
+        #startButton {
+            padding: 10px 20px;
+            background-color: white;
+            color: blue;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        #rectangle {
+            position: absolute;
+            width: 100px;
+            height: 50px;
+            background-color: pink;
+        }
+        #gameMessage {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<audio id="backgroundMusic" src="game.wav" loop></audio>
+
+<div id="startScreen">
+    dont drop the soap simulator
+    <button id="startButton">start</button>
+</div>
+
+<div id="gameScreen" style="display: none;">
+    <div id="gameMessage">dont drop it! keep your cursor on it!</div>
+    <div id="rectangle"></div>
+</div>
+
+<div id="gameOverScreen" style="display: none;">
+    <img src="gameover.png" alt="game over">
+</div>
+
+<script>
+const startScreen = document.getElementById('startScreen');
+const gameScreen = document.getElementById('gameScreen');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const startButton = document.getElementById('startButton');
+const rectangle = document.getElementById('rectangle');
+const backgroundMusic = document.getElementById('backgroundMusic');
+
+
+let rectangleMoving = false;
+let speed = 5;
+let gameInterval;
+let gameOverTimeout;
+
+startButton.addEventListener('click', startGame);
+
+function startGame() {
+    startScreen.style.display = 'none';
+    gameOverScreen.style.display = 'none';
+    gameScreen.style.display = 'flex';
+
+    backgroundMusic.play().catch(() => {
+        console.log('background music no starty');
+    });
+
+    rectangleMoving = true;
+    speed = 5;
+    rectangle.style.left = '50%';
+    rectangle.style.top = '50%';
+
+    gameInterval = setInterval(moveRectangle, 100);
+    gameOverTimeout = setTimeout(increaseSpeed, 10000);
+}
+
+rectangle.addEventListener('mouseenter', () => {
+    clearTimeout(gameOverTimeout);
+    gameOverTimeout = setTimeout(increaseSpeed, 10000);
+});
+
+rectangle.addEventListener('mouseleave', () => {
+    rectangleMoving = false;
+    endGame();
+});
+
+function moveRectangle() {
+    if (rectangleMoving) {
+        const rect = rectangle.getBoundingClientRect();
+        const newX = rect.left + (Math.random() * 2 - 1) * speed;
+        const newY = rect.top + (Math.random() * 2 - 1) * speed;
+        rectangle.style.left = `${newX}px`;
+        rectangle.style.top = `${newY}px`;
+
+        if (newX < 0 || newX > window.innerWidth - rect.width || newY < 0 || newY > window.innerHeight - rect.height) {
+            endGame();
+        }
+    }
+}
+
+function increaseSpeed() {
+    speed += 5;
+    gameOverTimeout = setTimeout(increaseSpeed, 10000);
+}
+
+function endGame() {
+    clearInterval(gameInterval);
+    rectangleMoving = false;
+    gameScreen.style.display = 'none';
+    gameOverScreen.style.display = 'flex';
+
+    setTimeout(() => {
+        startScreen.style.display = 'flex';
+        gameOverScreen.style.display = 'none';
+    }, 10000);
+}
+</script>
+
+</body>
+</html>
