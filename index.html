@@ -8,7 +8,7 @@
             overflow: hidden;
             background-color: grey;
         }
-        #startScreen, #gameScreen, #gameOverScreen {
+        #startscreen, #gamescreen, #gameoverscreen {
             position: absolute;
             top: 0;
             left: 0;
@@ -23,10 +23,10 @@
             font-size: 30px;
             text-align: center;
         }
-        #gameScreen {
+        #gamescreen {
             background-color: grey;
         }
-        #startButton {
+        #startbutton {
             padding: 10px 20px;
             background-color: white;
             color: blue;
@@ -40,9 +40,16 @@
             height: 50px;
             background-color: pink;
         }
-        #gameMessage {
+        #gamemessage {
             position: absolute;
             top: 10px;
+            width: 100%;
+            text-align: center;
+            font-size: 20px;
+        }
+        #timer {
+            position: absolute;
+            top: 50px;
             width: 100%;
             text-align: center;
             font-size: 20px;
@@ -51,44 +58,49 @@
 </head>
 <body>
 
-<audio id="backgroundMusic" src="game.wav" loop></audio>
+<audio id="backgroundmusic" src="game.wav" loop></audio>
 
-<div id="startScreen">
+<div id="startscreen">
     dont drop the soap simulator
-    <button id="startButton">start</button>
+    <button id="startbutton">start</button>
 </div>
 
-<div id="gameScreen" style="display: none;">
-    <div id="gameMessage">dont drop it! keep your cursor on it!</div>
+<div id="gamescreen" style="display: none;">
+    <div id="gamemessage">dont drop it! keep your cursor on it!</div>
+    <div id="timer">time: 0s</div>
     <div id="rectangle"></div>
 </div>
 
-<div id="gameOverScreen" style="display: none;">
+<div id="gameoverscreen" style="display: none;">
     <img src="gameover.png" alt="game over">
+    <div id="finaltime"></div>
 </div>
 
 <script>
-const startScreen = document.getElementById('startScreen');
-const gameScreen = document.getElementById('gameScreen');
-const gameOverScreen = document.getElementById('gameOverScreen');
-const startButton = document.getElementById('startButton');
+const startscreen = document.getElementById('startscreen');
+const gamescreen = document.getElementById('gamescreen');
+const gameoverscreen = document.getElementById('gameoverscreen');
+const startbutton = document.getElementById('startbutton');
 const rectangle = document.getElementById('rectangle');
-const backgroundMusic = document.getElementById('backgroundMusic');
-
+const backgroundmusic = document.getElementById('backgroundmusic');
+const timerElement = document.getElementById('timer');
+const finaltimeElement = document.getElementById('finaltime');
 
 let rectangleMoving = false;
 let speed = 5;
 let gameInterval;
 let gameOverTimeout;
+let startTime;
+let timerInterval;
 
-startButton.addEventListener('click', startGame);
+startbutton.addEventListener('click', startGame);
 
 function startGame() {
-    startScreen.style.display = 'none';
-    gameOverScreen.style.display = 'none';
-    gameScreen.style.display = 'flex';
+    startscreen.style.display = 'none';
+    gameoverscreen.style.display = 'none';
+    gamescreen.style.display = 'flex';
 
-    backgroundMusic.play().catch(() => {
+    backgroundmusic.play().catch(() => {
         console.log('background music no starty');
     });
 
@@ -96,6 +108,10 @@ function startGame() {
     speed = 5;
     rectangle.style.left = '50%';
     rectangle.style.top = '50%';
+
+    startTime = Date.now();
+    timerElement.textContent = 'time: 0s';
+    timerInterval = setInterval(updateTimer, 100);
 
     gameInterval = setInterval(moveRectangle, 100);
     gameOverTimeout = setTimeout(increaseSpeed, 10000);
@@ -130,18 +146,29 @@ function increaseSpeed() {
     gameOverTimeout = setTimeout(increaseSpeed, 10000);
 }
 
+function updateTimer() {
+    const currentTime = Date.now();
+    const elapsedTime = Math.floor((currentTime - startTime) / 1000);
+    timerElement.textContent = `time: ${elapsedTime}s`;
+}
+
 function endGame() {
     clearInterval(gameInterval);
+    clearInterval(timerInterval);
     rectangleMoving = false;
-    gameScreen.style.display = 'none';
-    gameOverScreen.style.display = 'flex';
+    gamescreen.style.display = 'none';
+    gameoverscreen.style.display = 'flex';
+
+    const finalTime = Math.floor((Date.now() - startTime) / 1000);
+    finaltimeElement.textContent = `you lasted: ${finalTime} seconds`;
 
     setTimeout(() => {
-        startScreen.style.display = 'flex';
-        gameOverScreen.style.display = 'none';
+        startscreen.style.display = 'flex';
+        gameoverscreen.style.display = 'none';
     }, 10000);
 }
 </script>
 
 </body>
 </html>
+ 
